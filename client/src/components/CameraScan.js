@@ -262,8 +262,13 @@ const CameraScan = ({ user }) => {
       // Prepare data for saving
       const dataToSave = {
         documentType: documentType,
-        rawText: extractedData?.rawText || 'Manual Entry',
-        extractedData: manualData
+        extractedData: {
+          name: manualData.name,
+          idNumber: manualData.idNumber,
+          dob: manualData.dob,
+          gender: manualData.gender,
+          nationality: manualData.nationality || 'Indian' // Default to Indian if not present
+        }
       };
 
       await appendToSpreadsheet(spreadsheetId, dataToSave);

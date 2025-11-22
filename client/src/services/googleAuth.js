@@ -197,18 +197,7 @@ const setupSpreadsheetHeaders = async (spreadsheetId) => {
           'ID Number',
           'Date of Birth',
           'Gender',
-          'Address',
-          'Father Name',
-          'Nationality',
-          'Issue Date',
-          'Expiry Date',
-          'Place of Issue',
-          'District',
-          'State',
-          'Pincode',
-          'Other Info 1',
-          'Other Info 2',
-          'Raw Text'
+          'Nationality'
         ]]
       }
     });
@@ -228,18 +217,7 @@ export const appendToSpreadsheet = async (spreadsheetId, data) => {
       extractedData.idNumber || extractedData.aadhaarNumber || extractedData.passportNumber || extractedData.panNumber || '',
       extractedData.dateOfBirth || '',
       extractedData.gender || '',
-      extractedData.address || '',
-      extractedData.fatherName || '',
-      extractedData.nationality || '',
-      extractedData.issueDate || '',
-      extractedData.expiryDate || '',
-      extractedData.placeOfIssue || '',
-      extractedData.district || '',
-      extractedData.state || '',
-      extractedData.pincode || '',
-      extractedData.otherInfo1 || '',
-      extractedData.otherInfo2 || '',
-      data.rawText || ''
+      extractedData.nationality || ''
     ]];
 
     const response = await gapi.client.sheets.spreadsheets.values.append({

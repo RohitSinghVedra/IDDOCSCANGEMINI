@@ -783,22 +783,6 @@ const extractPANData = (text) => {
     /\b([A-Z][A-Z]{3,}\s+[A-Z][A-Z]{3,}(?:\s+[A-Z][A-Z]{3,})?)\b(?=\s|$|\n|Father|पिता|Date|जन्म)/
   ];
 
-  for (const pattern of namePatterns) {
-    const match = cleanedText.match(pattern);
-    if (match) {
-      let name = (match[1] || match[0]).trim().toUpperCase();
-      // Skip false positives and "Father's Name" label itself
-      if (!name.match(/^(INCOME|TAX|DEPARTMENT|PAN|GOVERNMENT|GOVT|GOVT\.|OF|INDIA|स्थायी|लेखा|संख्या|कार्ड|E-PERMANENT|PERMANENT|ACCOUNT|NUMBER|CARD|FATHER|NAME|PITA)$/i) &&
-        !name.includes("FATHER") &&
-        name.length >= 5 &&
-        name.split(/\s+/).length >= 2 &&
-        !name.match(/^\d/)) {
-        data.name = name;
-        break;
-      }
-    }
-  }
-
   // Extract Father's Name - Pattern: "पिता का नाम / Father's Name" followed by name
   // Example: "RAJENDRA PRASAD AGGRAWAL"
   const fatherNamePatterns = [
