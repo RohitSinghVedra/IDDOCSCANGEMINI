@@ -14,7 +14,7 @@ let clubAccessToken = null; // For club accounts using pre-configured Gmail
 export const initGoogleAPI = () => {
   return new Promise((resolve, reject) => {
     const API_KEY = process.env.REACT_APP_GOOGLE_API_KEY;
-    
+
     if (gapiInitialized) {
       resolve(gapi);
       return;
@@ -39,9 +39,18 @@ export const initGoogleAPI = () => {
 
 // Sign in using OAuth 2.0 (Google Identity Services compatible)
 export const signInGoogle = async () => {
-  return new Promise((resolve, reject) => {
+  return new Promise(async (resolve, reject) => {
     const CLIENT_ID = process.env.REACT_APP_GOOGLE_CLIENT_ID || process.env.GOOGLE_CLIENT_ID;
-    
+
+    // Ensure GAPI is initialized (loads gapi.client)
+    try {
+      await initGoogleAPI();
+    } catch (error) {
+      console.error('Failed to initialize GAPI:', error);
+      reject(error);
+      return;
+    }
+
     const tokenClient = window.google.accounts.oauth2.initTokenClient({
       client_id: CLIENT_ID,
       scope: 'https://www.googleapis.com/auth/spreadsheets https://www.googleapis.com/auth/userinfo.email',
@@ -50,15 +59,17 @@ export const signInGoogle = async () => {
           reject(new Error(tokenResponse.error));
           return;
         }
-        
+
         accessToken = tokenResponse.access_token;
-        
+
+        // Ensure GAPI client is ready before setting token
+        if (!gapi.client) {
+          await initGoogleAPI();
+        }
+
         // Set token for gapi.client
         gapi.client.setToken({ access_token: accessToken });
-        
-        // Initialize Sheets API
-        await initGoogleAPI();
-        
+
         resolve({
           accessToken,
           expiresIn: tokenResponse.expires_in
@@ -90,13 +101,13 @@ export const signOutGoogle = async () => {
 export const setClubAccessToken = async (token) => {
   try {
     clubAccessToken = token;
-    
+
     // Initialize Google API if not already done
     await initGoogleAPI();
-    
+
     // Set the club's token
     gapi.client.setToken({ access_token: clubAccessToken });
-    
+
     return true;
   } catch (error) {
     console.error('Error setting club token:', error);
@@ -115,12 +126,12 @@ export const getCurrentUser = async () => {
     if (!isSignedIn()) {
       return null;
     }
-    
+
     const userInfo = await gapi.client.request({
       path: 'https://www.googleapis.com/oauth2/v2/userinfo',
       method: 'GET'
     });
-    
+
     return userInfo.result;
   } catch (error) {
     console.error('Error getting user:', error);
