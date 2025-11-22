@@ -1,0 +1,31 @@
+{
+  "name": "iddocscan",
+  "version": "1.0.0",
+  "description": "Mobile web app for scanning Indian ID documents",
+  "main": "server/index.js",
+  "scripts": {
+    "dev": "concurrently \"npm run server\" \"npm run client\"",
+    "server": "cd server && npm run dev",
+    "client": "cd client && npm start",
+    "install-all": "npm install && cd server && npm install && cd ../client && npm install",
+    "build": "cd client && npm run build"
+  },
+  "keywords": ["document-scanning", "ocr", "indian-documents", "aadhaar", "passport"],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "express": "^4.18.2",
+    "cors": "^2.8.5",
+    "dotenv": "^16.3.1",
+    "multer": "^1.4.5-lts.1",
+    "firebase-admin": "^12.0.0",
+    "googleapis": "^128.0.0",
+    "tesseract.js": "^5.0.4",
+    "sharp": "^0.32.6",
+    "uuid": "^9.0.1",
+    "serverless-http": "^3.2.0"
+  },
+  "devDependencies": {
+    "concurrently": "^8.2.2"
+  }
+}

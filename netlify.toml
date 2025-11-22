@@ -1,0 +1,16 @@
+[build]
+  publish = "client/build"
+  command = "cd client && npm install && npm run build"
+
+[build.environment]
+  NODE_VERSION = "18"
+
+# API routes don't need redirects since we're using frontend-only approach now
+
+# Headers to prevent caching of index.html to ensure CSP updates take effect
+[[headers]]
+  for = "/*.html"
+  [headers.values]
+    Cache-Control = "no-cache, no-store, must-revalidate"
+    Pragma = "no-cache"
+    Expires = "0"
