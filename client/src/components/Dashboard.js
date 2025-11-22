@@ -40,10 +40,13 @@ const Dashboard = ({ user, onLogout }) => {
             }
           } catch (error) {
             console.error('Error using club token:', error);
-            toast.error('Failed to connect to club Gmail. Token might be expired.');
+            // Token expired or invalid - allow manual connection
+            setGoogleConnected(false);
+            toast.warning('Google Sheets session expired. Please reconnect.');
           }
         } else {
-          toast.warning('Nightclub Gmail not configured. Contact Admin.');
+          // No token configured
+          setGoogleConnected(false);
         }
       } else {
         // Legacy/Regular User Flow
@@ -60,6 +63,7 @@ const Dashboard = ({ user, onLogout }) => {
       }
     } catch (error) {
       console.error('Error checking Google status:', error);
+      setGoogleConnected(false);
     }
   };
 
@@ -83,32 +87,34 @@ const Dashboard = ({ user, onLogout }) => {
   };
 
   const handleGoogleConnect = async () => {
-    if (isClubUser) {
-      toast.info('Club accounts are managed by Admin.');
-      return;
-    }
-
     setLoading(true);
     try {
       const response = await signInGoogle();
       if (response && response.accessToken) {
-        const userDocRef = doc(db, 'users', user.id);
-        const userDoc = await getDoc(userDocRef);
+        // Determine collection based on user type
+        const collectionName = isClubUser ? 'clubs' : 'users';
+        const docRef = doc(db, collectionName, user.id);
+        const docSnap = await getDoc(docRef);
 
         let spreadsheetId, spreadsheetUrl;
 
-        if (userDoc.exists() && userDoc.data().spreadsheetId) {
-          spreadsheetId = userDoc.data().spreadsheetId;
-          spreadsheetUrl = userDoc.data().spreadsheetUrl;
+        if (docSnap.exists() && docSnap.data().spreadsheetId) {
+          spreadsheetId = docSnap.data().spreadsheetId;
+          spreadsheetUrl = docSnap.data().spreadsheetUrl;
         } else {
-          const result = await createSpreadsheet();
+          // Create new spreadsheet
+          const sheetName = isClubUser ? `${user.name} - ID Scans` : 'ID Document Scans';
+          const result = await createSpreadsheet(sheetName);
           spreadsheetId = result.spreadsheetId;
           spreadsheetUrl = result.spreadsheetUrl;
 
-          await setDoc(userDocRef, {
+          // Update document with new sheet info
+          await setDoc(docRef, {
             googleConnected: true,
             spreadsheetId,
             spreadsheetUrl,
+            // For clubs, we might want to save the token too (optional, but it expires)
+            ...(isClubUser ? { gmailAccessToken: response.accessToken } : {}),
             updatedAt: new Date()
           }, { merge: true });
         }
@@ -168,7 +174,7 @@ const Dashboard = ({ user, onLogout }) => {
                 View Sheet ↗
               </a>
             )}
-            {!googleConnected && !isClubUser && (
+            {!googleConnected && (
               <button onClick={handleGoogleConnect} disabled={loading} className="connect-btn">
                 {loading ? 'Connecting...' : 'Connect Google'}
               </button>
