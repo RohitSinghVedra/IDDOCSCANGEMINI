@@ -219,12 +219,34 @@ const CameraScan = ({ user }) => {
       let spreadsheetUrl;
 
       if (user?.userType === 'club') {
-        if (!user.spreadsheetId) {
-          toast.error('Nightclub spreadsheet not configured. Please contact admin.');
+        // Fetch latest club data to get fresh token and spreadsheet info
+        const clubDocRef = doc(db, 'clubs', user.id);
+        const clubDoc = await getDoc(clubDocRef);
+
+        if (!clubDoc.exists()) {
+          toast.error('Club account not found.');
           return;
         }
-        spreadsheetId = user.spreadsheetId;
-        spreadsheetUrl = user.spreadsheetUrl;
+
+        const clubData = clubDoc.data();
+
+        if (!clubData.spreadsheetId) {
+          toast.error('Nightclub spreadsheet not configured. Please connect Google Sheets in Dashboard.');
+          return;
+        }
+
+        spreadsheetId = clubData.spreadsheetId;
+        spreadsheetUrl = clubData.spreadsheetUrl;
+
+        // Ensure we have the latest token set
+        if (clubData.gmailAccessToken) {
+          const { setClubAccessToken } = await import('../services/googleAuth');
+          await setClubAccessToken(clubData.gmailAccessToken);
+        } else {
+          // If no token, try anyway (might be in memory), but warn if fails
+          console.warn('No Gmail token found in club record');
+        }
+
       } else {
         const userDocRef = doc(db, 'users', user.id);
         const userDoc = await getDoc(userDocRef);
@@ -257,7 +279,11 @@ const CameraScan = ({ user }) => {
 
     } catch (error) {
       console.error('Save error:', error);
-      toast.error(error.message || 'Failed to save document');
+      if (error.result && error.result.error && error.result.error.code === 403) {
+        toast.error('Permission denied. Please reconnect Google Sheets in Dashboard.');
+      } else {
+        toast.error(error.message || 'Failed to save document');
+      }
     } finally {
       setLoading(false);
     }
