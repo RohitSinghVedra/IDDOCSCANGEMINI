@@ -103,7 +103,14 @@ export const setClubAccessToken = async (token) => {
     clubAccessToken = token;
 
     // Initialize Google API if not already done
-    await initGoogleAPI();
+    if (!gapi.client) {
+      await initGoogleAPI();
+    }
+
+    // Double check if gapi.client is ready
+    if (!gapi.client) {
+      throw new Error('Google API Client not initialized');
+    }
 
     // Set the club's token
     gapi.client.setToken({ access_token: clubAccessToken });
