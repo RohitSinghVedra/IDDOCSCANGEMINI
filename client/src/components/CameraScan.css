@@ -472,28 +472,6 @@ textarea:focus {
 @media (max-width: 640px) {
   .container {
     padding: 0;
-    height: 100vh;
-    display: flex;
-    flex-direction: column;
-  }
-
-  .card {
-    border-radius: 0;
-    border: none;
-    padding: 1rem;
-    height: 100%;
-    display: flex;
-    flex-direction: column;
-  }
-
-  .header {
-    padding: 0.75rem 1rem;
-  }
-
-  /* Full screen camera on mobile */
-  .camera-container {
-    flex: 1;
-    aspect-ratio: auto;
     /* Reset aspect ratio */
     height: auto;
     border-radius: 16px;
