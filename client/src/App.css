@@ -1,13 +1,30 @@
+:root {
+  --bg-deep: #000000;
+  --bg-card: #1e293b;
+  --text-primary: #ffffff;
+  --text-secondary: #9ca3af;
+  --accent-teal: #2dd4bf;
+  --accent-green: #10b981;
+  --glass-bg: rgba(255, 255, 255, 0.03);
+  --glass-border: rgba(255, 255, 255, 0.08);
+  --glass-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+  --radius-lg: 30px;
+  --radius-md: 12px;
+  --radius-full: 9999px;
+}
+
 .App {
   text-align: center;
   min-height: 100vh;
-  background: var(--bg-dark);
+  background: var(--bg-deep);
+  color: var(--text-primary);
+  font-family: 'Inter', system-ui, -apple-system, sans-serif;
   display: flex;
   flex-direction: column;
 }
 
 .App-header {
-  background-color: var(--bg-card);
+  background-color: var(--bg-deep);
   min-height: 100vh;
   display: flex;
   flex-direction: column;
@@ -27,7 +44,8 @@
 
 .card {
   background: var(--glass-bg);
-  backdrop-filter: blur(12px);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
   border: 1px solid var(--glass-border);
   border-radius: var(--radius-lg);
   padding: 24px;
@@ -43,16 +61,17 @@ h5,
 h6 {
   margin-top: 0;
   color: var(--text-primary);
+  font-weight: 600;
 }
 
 a {
-  color: var(--neon-blue);
+  color: var(--accent-teal);
   text-decoration: none;
   transition: color 0.3s ease;
 }
 
 a:hover {
-  color: var(--neon-purple);
+  color: var(--accent-green);
 }
 
 /* Toastify Customization */
@@ -61,22 +80,22 @@ a:hover {
 }
 
 .Toastify__toast {
-  background: var(--bg-card);
-  color: var(--text-primary);
+  background: #1e293b !important;
+  color: var(--text-primary) !important;
   border: 1px solid var(--glass-border);
   border-radius: var(--radius-md);
 }
 
 .Toastify__toast--success {
-  border-left: 4px solid var(--neon-green);
+  border-left: 4px solid var(--accent-green);
 }
 
 .Toastify__toast--error {
-  border-left: 4px solid var(--neon-red);
+  border-left: 4px solid #ef4444;
 }
 
 .Toastify__toast--info {
-  border-left: 4px solid var(--neon-blue);
+  border-left: 4px solid var(--accent-teal);
 }
 
 .Toastify__toast--warning {
