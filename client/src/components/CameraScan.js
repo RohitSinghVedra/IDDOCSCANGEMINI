@@ -75,12 +75,62 @@ const CameraScan = ({ user }) => {
   };
 
   const handleSave = async () => {
-    // ... (existing checks)
+    if (user?.userType !== 'club' && !isSignedIn()) {
+      toast.error('Please connect Google account first');
+      navigate('/dashboard');
+      return;
+    }
+
+    if (!manualData.name && !manualData.idNumber) {
+      toast.warning('Please enter at least a Name or ID Number');
+      return;
+    }
 
     setLoading(true);
 
     try {
-      // ... (existing save logic)
+      let spreadsheetId;
+      let spreadsheetUrl;
+
+      if (user?.userType === 'club') {
+        // Fetch latest club data to get fresh token and spreadsheet info
+        const clubDocRef = doc(db, 'clubs', user.id);
+        const clubDoc = await getDoc(clubDocRef);
+
+        if (!clubDoc.exists()) {
+          toast.error('Club account not found.');
+          return;
+        }
+
+        const clubData = clubDoc.data();
+
+        if (!clubData.spreadsheetId) {
+          toast.error('Nightclub spreadsheet not configured. Please connect Google Sheets in Dashboard.');
+          return;
+        }
+
+        spreadsheetId = clubData.spreadsheetId;
+        spreadsheetUrl = clubData.spreadsheetUrl;
+
+        // Ensure we have the latest token set
+        if (clubData.gmailAccessToken) {
+          const { setClubAccessToken } = await import('../services/googleAuth');
+          await setClubAccessToken(clubData.gmailAccessToken);
+        } else {
+          console.warn('No Gmail token found in club record');
+        }
+
+      } else {
+        const userDocRef = doc(db, 'users', user.id);
+        const userDoc = await getDoc(userDocRef);
+        if (!userDoc.exists() || !userDoc.data().spreadsheetId) {
+          toast.error('Spreadsheet not found. Please connect Google account again.');
+          navigate('/dashboard');
+          return;
+        }
+        spreadsheetId = userDoc.data().spreadsheetId;
+        spreadsheetUrl = userDoc.data().spreadsheetUrl;
+      }
 
       // Prepare data for saving
       const dataToSave = {
