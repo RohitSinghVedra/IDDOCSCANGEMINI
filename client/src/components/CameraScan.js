@@ -9,12 +9,13 @@ import './CameraScan.css';
 
 const CameraScan = ({ user }) => {
   const [loading, setLoading] = useState(false);
+  const [documentType, setDocumentType] = useState('other');
   const [method, setMethod] = useState('camera'); // camera, upload, manual
   const [ocrProgress, setOcrProgress] = useState(0);
   const [stream, setStream] = useState(null);
   const [capturedImage, setCapturedImage] = useState(null);
 
-  const [documentType, setDocumentType] = useState('other');
+  const [showReconnectModal, setShowReconnectModal] = useState(false);
   const [showPreview, setShowPreview] = useState(false);
   const [isProcessing, setIsProcessing] = useState(false);
 
@@ -35,6 +36,97 @@ const CameraScan = ({ user }) => {
   const videoRef = useRef(null);
   const canvasRef = useRef(null);
   const navigate = useNavigate();
+
+  // ... (existing code)
+
+  const handleQuickReconnect = async () => {
+    try {
+      setLoading(true);
+      const { signInGoogle, setClubAccessToken } = await import('../services/googleAuth');
+
+      // Enforce club email
+      const expectedEmail = user?.userType === 'club' ? (user.gmail || user.email) : null;
+
+      const response = await signInGoogle(expectedEmail);
+
+      if (response && response.accessToken) {
+        // Update Firestore with new token
+        if (user?.userType === 'club') {
+          const { setDoc, doc } = await import('firebase/firestore');
+          const { db } = await import('../firebase-config');
+          await setDoc(doc(db, 'clubs', user.id), {
+            gmailAccessToken: response.accessToken,
+            updatedAt: new Date()
+          }, { merge: true });
+
+          // Set token in memory
+          await setClubAccessToken(response.accessToken);
+        }
+
+        toast.success('Reconnected successfully! You can now save.');
+        setShowReconnectModal(false);
+      }
+    } catch (error) {
+      console.error('Reconnect error:', error);
+      toast.error(error.message || 'Failed to reconnect');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleSave = async () => {
+    // ... (existing checks)
+
+    setLoading(true);
+
+    try {
+      // ... (existing save logic)
+
+      // Prepare data for saving
+      const dataToSave = {
+        documentType: documentType,
+        extractedData: {
+          name: manualData.name,
+          idNumber: manualData.idNumber,
+          dob: manualData.dob,
+          gender: manualData.gender,
+          nationality: manualData.nationality || 'Indian'
+        }
+      };
+
+      await appendToSpreadsheet(spreadsheetId, dataToSave);
+
+      toast.success('Saved to Google Sheets!', {
+        onClick: () => spreadsheetUrl && window.open(spreadsheetUrl, '_blank'),
+        autoClose: 3000
+      });
+
+      setTimeout(() => {
+        navigate('/dashboard');
+      }, 2000);
+
+    } catch (error) {
+      console.error('Save error:', error);
+      const errorCode = error.result?.error?.code || error.status;
+
+      if (errorCode === 403 || errorCode === 401) {
+        // Show Reconnect Modal instead of redirecting
+        setShowReconnectModal(true);
+        toast.warning('Session expired. Please reconnect to save.');
+      } else {
+        toast.error(error.message || 'Failed to save document');
+      }
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // ... (existing render)
+
+
+
+
+
 
   useEffect(() => {
     // For club users, Google Sheets is automatically configured via Dashboard
@@ -200,115 +292,60 @@ const CameraScan = ({ user }) => {
     }
   };
 
-  const handleSave = async () => {
-    if (user?.userType !== 'club' && !isSignedIn()) {
-      toast.error('Please connect Google account first');
-      navigate('/dashboard');
-      return;
-    }
-
-    if (!manualData.name && !manualData.idNumber) {
-      toast.warning('Please enter at least a Name or ID Number');
-      return;
-    }
-
-    setLoading(true);
-
-    try {
-      let spreadsheetId;
-      let spreadsheetUrl;
-
-      if (user?.userType === 'club') {
-        // Fetch latest club data to get fresh token and spreadsheet info
-        const clubDocRef = doc(db, 'clubs', user.id);
-        const clubDoc = await getDoc(clubDocRef);
-
-        if (!clubDoc.exists()) {
-          toast.error('Club account not found.');
-          return;
-        }
-
-        const clubData = clubDoc.data();
-
-        if (!clubData.spreadsheetId) {
-          toast.error('Nightclub spreadsheet not configured. Please connect Google Sheets in Dashboard.');
-          return;
-        }
-
-        spreadsheetId = clubData.spreadsheetId;
-        spreadsheetUrl = clubData.spreadsheetUrl;
-
-        // Ensure we have the latest token set
-        if (clubData.gmailAccessToken) {
-          const { setClubAccessToken } = await import('../services/googleAuth');
-          await setClubAccessToken(clubData.gmailAccessToken);
-        } else {
-          // If no token, try anyway (might be in memory), but warn if fails
-          console.warn('No Gmail token found in club record');
-        }
-
-      } else {
-        const userDocRef = doc(db, 'users', user.id);
-        const userDoc = await getDoc(userDocRef);
-        if (!userDoc.exists() || !userDoc.data().spreadsheetId) {
-          toast.error('Spreadsheet not found. Please connect Google account again.');
-          navigate('/dashboard');
-          return;
-        }
-        spreadsheetId = userDoc.data().spreadsheetId;
-        spreadsheetUrl = userDoc.data().spreadsheetUrl;
-      }
-
-      // Prepare data for saving
-      const dataToSave = {
-        documentType: documentType,
-        extractedData: {
-          name: manualData.name,
-          idNumber: manualData.idNumber,
-          dob: manualData.dob,
-          gender: manualData.gender,
-          nationality: manualData.nationality || 'Indian' // Default to Indian if not present
-        }
-      };
-
-      await appendToSpreadsheet(spreadsheetId, dataToSave);
-
-      toast.success('Saved to Google Sheets!', {
-        onClick: () => spreadsheetUrl && window.open(spreadsheetUrl, '_blank'),
-        autoClose: 3000
-      });
-
-      setTimeout(() => {
-        navigate('/dashboard');
-      }, 2000);
-
-    } catch (error) {
-      console.error('Save error:', error);
-      const errorCode = error.result?.error?.code || error.status;
-
-      if (errorCode === 403 || errorCode === 401) {
-        toast.error('Session expired. Please reconnect Google Sheets in Dashboard.', {
-          autoClose: 4000
-        });
-        setTimeout(() => navigate('/dashboard'), 3000);
-      } else {
-        toast.error(error.message || 'Failed to save document');
-      }
-    } finally {
-      setLoading(false);
-    }
-  };
-
   const handleManualEntry = () => {
     setMethod('manual');
     stopCamera();
     setCapturedImage(null);
-
     setShowPreview(true); // Show preview immediately for manual entry
   };
 
   return (
     <div className="camera-scan-page">
+      {/* Reconnect Modal */}
+      {showReconnectModal && (
+        <div className="modal-overlay" style={{
+          position: 'fixed',
+          top: 0,
+          left: 0,
+          right: 0,
+          bottom: 0,
+          backgroundColor: 'rgba(0,0,0,0.85)',
+          display: 'flex',
+          justifyContent: 'center',
+          alignItems: 'center',
+          zIndex: 1000
+        }}>
+          <div className="modal-content" style={{
+            backgroundColor: '#1a1a1a',
+            padding: '24px',
+            borderRadius: '12px',
+            maxWidth: '400px',
+            width: '90%',
+            border: '1px solid #333',
+            textAlign: 'center'
+          }}>
+            <h3 style={{ color: '#fff', marginBottom: '12px' }}>⚠️ Session Expired</h3>
+            <p style={{ color: '#ccc', marginBottom: '24px' }}>Your Google Sheets connection has expired. Please reconnect to save this document.</p>
+            <div className="modal-actions" style={{ display: 'flex', gap: '12px', justifyContent: 'center' }}>
+              <button
+                className="btn btn-secondary"
+                onClick={() => setShowReconnectModal(false)}
+                disabled={loading}
+              >
+                Cancel
+              </button>
+              <button
+                className="btn btn-primary"
+                onClick={handleQuickReconnect}
+                disabled={loading}
+              >
+                {loading ? 'Connecting...' : '🔄 Reconnect Google'}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
       <div className="header">
         <div className="header-content">
           <h2>📷 Scan Document</h2>
