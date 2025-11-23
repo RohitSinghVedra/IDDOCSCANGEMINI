@@ -446,37 +446,480 @@ textarea:focus {
 
   to {
     opacity: 1;
-    transform: scale(1);
   }
-}
 
-/* Responsive Mobile Styles */
-@media (max-width: 640px) {
-  .container {
-    padding: 0;
-    /* Reset aspect ratio */
-    height: auto;
+  .torch-btn {
+    width: 48px;
+    height: 48px;
+    border-radius: 50%;
+    border: none;
+    background: rgba(255, 255, 255, 0.2);
+    backdrop-filter: blur(4px);
+    color: white;
+    font-size: 1.5rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: all 0.3s ease;
+  }
+
+  .torch-btn.active {
+    background: #fbbf24;
+    color: #000;
+    box-shadow: 0 0 15px #fbbf24;
+  }
+
+  /* Upload & Placeholder */
+  .upload-container,
+  .camera-placeholder {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    height: 400px;
+    border: 2px dashed var(--glass-border);
+    border-radius: 20px;
+    background: rgba(0, 0, 0, 0.2);
+    cursor: pointer;
+    transition: all 0.3s ease;
+  }
+
+  .upload-container:hover {
+    border-color: var(--primary-color);
+    background: rgba(99, 102, 241, 0.05);
+  }
+
+  .upload-placeholder p,
+  .camera-placeholder p {
+    margin-top: 1rem;
+    color: var(--text-dim);
+    font-size: 1.1rem;
+  }
+
+  /* Processing */
+  .processing-indicator {
+    margin-top: 2rem;
+    text-align: center;
+  }
+
+  .processing-text {
+    margin-bottom: 0.5rem;
+    color: var(--accent-color);
+    font-weight: 600;
+    animation: pulse 1.5s infinite;
+  }
+
+  .progress-bar {
+    height: 6px;
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 3px;
+    overflow: hidden;
+  }
+
+  .progress-fill {
+    height: 100%;
+    background: linear-gradient(90deg, var(--primary-color), var(--accent-color));
+    transition: width 0.3s ease;
+  }
+
+  @keyframes pulse {
+
+    0%,
+    100% {
+      opacity: 1;
+    }
+
+    50% {
+      opacity: 0.6;
+    }
+  }
+
+  /* Edit Form */
+  .preview-container {
+    animation: slideUp 0.4s ease-out;
+  }
+
+  @keyframes slideUp {
+    from {
+      opacity: 0;
+      transform: translateY(20px);
+    }
+
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  .image-preview {
+    margin-bottom: 2rem;
     border-radius: 16px;
-    margin-bottom: 1rem;
+    overflow: hidden;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+    border: 1px solid var(--glass-border);
   }
 
-  .focus-overlay {
-    width: 90%;
-    /* Maintain ID card ratio */
-    aspect-ratio: 1.58/1;
+  .image-preview img {
+    width: 100%;
+    display: block;
   }
 
-  .camera-controls {
-    bottom: 2rem;
-  }
-
-  .capture-btn {
-    width: 72px;
-    height: 72px;
+  .form-group {
+    margin-bottom: 1.25rem;
   }
 
   .form-row {
-    flex-direction: column;
-    gap: 0;
+    display: flex;
+    gap: 1rem;
   }
-}
+
+  .form-row .form-group {
+    flex: 1;
+  }
+
+  label {
+    display: block;
+    margin-bottom: 0.5rem;
+    color: var(--text-dim);
+    font-size: 0.9rem;
+    font-weight: 500;
+  }
+
+  input,
+  select,
+  textarea {
+    width: 100%;
+    padding: 0.75rem 1rem;
+    background: rgba(15, 23, 42, 0.6);
+    border: 1px solid var(--glass-border);
+    border-radius: 12px;
+    color: white;
+    font-size: 1rem;
+    transition: all 0.2s;
+  }
+
+  input:focus,
+  select:focus,
+  textarea:focus {
+    outline: none;
+    border-color: var(--primary-color);
+    box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.2);
+    background: rgba(15, 23, 42, 0.8);
+  }
+
+  /* Buttons */
+  .preview-controls {
+    display: flex;
+    gap: 1rem;
+    margin-top: 2rem;
+  }
+
+  .preview-controls .btn {
+    flex: 1;
+    padding: 1rem;
+    border-radius: 12px;
+    font-weight: 600;
+    cursor: pointer;
+  }
+
+  /* Modal */
+  .modal-overlay {
+    backdrop-filter: blur(8px);
+  }
+
+  .modal-content {
+    box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+    animation: popIn 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+  }
+
+  @keyframes popIn {
+    from {
+      opacity: 0;
+      transform: scale(0.9);
+    }
+
+    to {
+      opacity: 1;
+      transform: scale(1);
+    }
+  }
+
+  /* Responsive Mobile Styles */
+  @media (max-width: 640px) {
+    .container {
+      padding: 0;
+      height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .card {
+      border-radius: 0;
+      border: none;
+      padding: 0;
+      /* Remove padding for edge-to-edge */
+      height: 100%;
+      display: flex;
+      flex-direction: column;
+      background: transparent;
+      /* Let background show through or handle in container */
+      box-shadow: none;
+      overflow-y: auto;
+      -webkit-overflow-scrolling: touch;
+    }
+
+    .header {
+      padding: 0.75rem 1rem;
+      background: rgba(15, 23, 42, 0.95);
+      /* More opaque on mobile */
+    }
+
+    /* Add padding back to non-camera elements */
+    .method-selector {
+      margin: 1rem;
+    }
+
+    .preview-container {
+      padding: 1rem;
+      background: var(--card-bg);
+      border-radius: 24px 24px 0 0;
+      /* Rounded top */
+      margin-top: auto;
+      /* Push to bottom if needed */
+      min-height: 100%;
+    }
+
+    /* Full screen camera on mobile */
+    .camera-container {
+      flex: 1;
+      width: 100%;
+      aspect-ratio: auto;
+      height: auto;
+      border-radius: 0;
+      /* No corners */
+      margin: 0;
+      box-shadow: none;
+    }
+
+    .focus-overlay {
+      width: 85%;
+      aspect-ratio: 1.58/1;
+    }
+
+    .camera-controls {
+      bottom: 3rem;
+      /* More space from bottom */
+    }
+
+    .capture-btn {
+      width: 80px;
+      /* Larger on mobile */
+      height: 80px;
+    }
+
+    @keyframes pulse {
+
+      0%,
+      100% {
+        opacity: 1;
+      }
+
+      50% {
+        opacity: 0.6;
+      }
+    }
+
+    /* Edit Form */
+    .preview-container {
+      animation: slideUp 0.4s ease-out;
+    }
+
+    @keyframes slideUp {
+      from {
+        opacity: 0;
+        transform: translateY(20px);
+      }
+
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    .image-preview {
+      margin-bottom: 2rem;
+      border-radius: 16px;
+      overflow: hidden;
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+      border: 1px solid var(--glass-border);
+    }
+
+    .image-preview img {
+      width: 100%;
+      display: block;
+    }
+
+    .form-group {
+      margin-bottom: 1.25rem;
+    }
+
+    .form-row {
+      display: flex;
+      gap: 1rem;
+    }
+
+    .form-row .form-group {
+      flex: 1;
+    }
+
+    label {
+      display: block;
+      margin-bottom: 0.5rem;
+      color: var(--text-dim);
+      font-size: 0.9rem;
+      font-weight: 500;
+    }
+
+    input,
+    select,
+    textarea {
+      width: 100%;
+      padding: 0.75rem 1rem;
+      background: rgba(15, 23, 42, 0.6);
+      border: 1px solid var(--glass-border);
+      border-radius: 12px;
+      color: white;
+      font-size: 1rem;
+      transition: all 0.2s;
+    }
+
+    input:focus,
+    select:focus,
+    textarea:focus {
+      outline: none;
+      border-color: var(--primary-color);
+      box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.2);
+      background: rgba(15, 23, 42, 0.8);
+    }
+
+    /* Buttons */
+    .preview-controls {
+      display: flex;
+      gap: 1rem;
+      margin-top: 2rem;
+    }
+
+    .preview-controls .btn {
+      flex: 1;
+      padding: 1rem;
+      border-radius: 12px;
+      font-weight: 600;
+      cursor: pointer;
+    }
+
+    /* Modal */
+    .modal-overlay {
+      backdrop-filter: blur(8px);
+    }
+
+    .modal-content {
+      box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+      animation: popIn 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    }
+
+    @keyframes popIn {
+      from {
+        opacity: 0;
+        transform: scale(0.9);
+      }
+
+      to {
+        opacity: 1;
+        transform: scale(1);
+      }
+    }
+
+    /* Responsive Mobile Styles */
+    @media (max-width: 640px) {
+      .container {
+        padding: 0;
+        height: 100vh;
+        display: flex;
+        flex-direction: column;
+      }
+
+      .card {
+        border-radius: 0;
+        border: none;
+        padding: 0;
+        /* Remove padding for edge-to-edge */
+        height: 100%;
+        display: flex;
+        flex-direction: column;
+        background: transparent;
+        /* Let background show through or handle in container */
+        box-shadow: none;
+        overflow-y: auto;
+        -webkit-overflow-scrolling: touch;
+      }
+
+      .header {
+        padding: 0.75rem 1rem;
+        background: rgba(15, 23, 42, 0.95);
+        /* More opaque on mobile */
+      }
+
+      /* Add padding back to non-camera elements */
+      .method-selector {
+        margin: 1rem;
+      }
+
+      .preview-container {
+        padding: 1rem;
+        background: var(--card-bg);
+        border-radius: 24px 24px 0 0;
+        /* Rounded top */
+        margin-top: auto;
+        /* Push to bottom if needed */
+        min-height: 100%;
+      }
+
+      /* Full screen camera on mobile */
+      .camera-container {
+        flex: 1;
+        width: 100%;
+        aspect-ratio: auto;
+        height: auto;
+        border-radius: 0;
+        /* No corners */
+        margin: 0;
+        box-shadow: none;
+      }
+
+      .focus-overlay {
+        width: 85%;
+        aspect-ratio: 1.58/1;
+      }
+
+      .camera-controls {
+        bottom: 3rem;
+        /* More space from bottom */
+      }
+
+      .capture-btn {
+        width: 80px;
+        /* Larger on mobile */
+        height: 80px;
+      }
+
+      .form-row {
+        flex-direction: column;
+        gap: 0;
+      }
+
+      .image-preview {
+        border-radius: 12px;
+        margin-bottom: 1.5rem;
+      }
+    }
