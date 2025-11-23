@@ -135,6 +135,33 @@ const Dashboard = ({ user, onLogout }) => {
     }
   };
 
+  const handleDisconnect = async () => {
+    if (!window.confirm('Are you sure you want to disconnect? This will allow you to create a NEW sheet next time you connect.')) {
+      return;
+    }
+
+    setLoading(true);
+    try {
+      const docRef = doc(db, isClubUser ? 'clubs' : 'users', user.id);
+
+      await setDoc(docRef, {
+        googleConnected: false,
+        spreadsheetId: null,
+        spreadsheetUrl: null,
+        updatedAt: new Date()
+      }, { merge: true });
+
+      setGoogleConnected(false);
+      setSpreadsheetUrl(null);
+      toast.success('Disconnected. Click "Connect Google" to create a new sheet.');
+    } catch (error) {
+      console.error('Disconnect error:', error);
+      toast.error('Failed to disconnect');
+    } finally {
+      setLoading(false);
+    }
+  };
+
   const handleLogout = () => {
     onLogout();
     navigate('/login');
@@ -168,21 +195,33 @@ const Dashboard = ({ user, onLogout }) => {
                 <small>Using {user?.gmail}</small>
               )}
             </div>
-            {googleConnected && spreadsheetUrl && (
-              <a
-                href={spreadsheetUrl}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="view-sheet-btn"
-              >
-                View Sheet ↗
-              </a>
-            )}
-            {!googleConnected && (
-              <button onClick={handleGoogleConnect} disabled={loading} className="connect-btn">
-                {loading ? 'Connecting...' : 'Connect Google'}
-              </button>
-            )}
+            <div className="status-actions">
+              {googleConnected && spreadsheetUrl && (
+                <a
+                  href={spreadsheetUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="view-sheet-btn"
+                >
+                  View Sheet ↗
+                </a>
+              )}
+              {googleConnected && (
+                <button
+                  onClick={handleDisconnect}
+                  disabled={loading}
+                  className="disconnect-btn"
+                  title="Disconnect to reset sheet"
+                >
+                  Disconnect 🗑️
+                </button>
+              )}
+              {!googleConnected && (
+                <button onClick={handleGoogleConnect} disabled={loading} className="connect-btn">
+                  {loading ? 'Connecting...' : 'Connect Google'}
+                </button>
+              )}
+            </div>
           </div>
         </div>
 
