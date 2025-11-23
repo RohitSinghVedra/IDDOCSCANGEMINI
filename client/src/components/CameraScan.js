@@ -532,21 +532,6 @@ const CameraScan = ({ user }) => {
                     <button
                       className={`torch-btn ${torchOn ? 'active' : ''}`}
                       onClick={toggleTorch}
-                      style={{
-                        position: 'absolute',
-                        left: '20px',
-                        bottom: '20px',
-                        background: torchOn ? '#fbbf24' : 'rgba(255,255,255,0.2)',
-                        border: 'none',
-                        borderRadius: '50%',
-                        width: '48px',
-                        height: '48px',
-                        display: 'flex',
-                        alignItems: 'center',
-                        justifyContent: 'center',
-                        cursor: 'pointer',
-                        fontSize: '24px'
-                      }}
                       title="Toggle Flash"
                     >
                       {torchOn ? '⚡' : '🔦'}

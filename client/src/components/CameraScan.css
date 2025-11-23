@@ -91,6 +91,7 @@
   border-radius: 12px;
   font-weight: 600;
   transition: all 0.3s ease;
+  padding: 0.75rem;
 }
 
 .btn-primary {
@@ -133,6 +134,8 @@
   border-radius: 20px;
   overflow: hidden;
   background: black;
+  width: 100%;
+  /* Default Desktop Aspect Ratio */
   aspect-ratio: 4/3;
   box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
 }
@@ -149,16 +152,35 @@ video {
   object-fit: cover;
 }
 
-/* Scanning Animation */
+/* Scanning Animation & Overlay */
 .focus-overlay {
   position: absolute;
-  top: 20%;
-  left: 10%;
-  right: 10%;
-  bottom: 20%;
-  border: 2px solid rgba(255, 255, 255, 0.5);
-  border-radius: 12px;
-  box-shadow: 0 0 0 9999px rgba(0, 0, 0, 0.6);
+  /* ID Card Aspect Ratio approx 1.58:1 */
+  width: 85%;
+  aspect-ratio: 1.58/1;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  border: 2px solid rgba(255, 255, 255, 0.8);
+  border-radius: 16px;
+  box-shadow: 0 0 0 9999px rgba(0, 0, 0, 0.7);
+  /* Darken outside */
+}
+
+.focus-overlay::before {
+  content: '';
+  position: absolute;
+  top: -2px;
+  left: -2px;
+  right: -2px;
+  bottom: -2px;
+  border-radius: 16px;
+  border: 2px solid transparent;
+  background: linear-gradient(45deg, var(--primary-color), transparent, var(--accent-color)) border-box;
+  -webkit-mask: linear-gradient(#fff 0 0) padding-box, linear-gradient(#fff 0 0);
+  -webkit-mask-composite: xor;
+  mask-composite: exclude;
+  opacity: 0.5;
 }
 
 .focus-overlay::after {
@@ -169,8 +191,8 @@ video {
   right: 0;
   height: 2px;
   background: var(--success-color);
-  box-shadow: 0 0 10px var(--success-color);
-  animation: scan 2s linear infinite;
+  box-shadow: 0 0 15px var(--success-color);
+  animation: scan 2.5s cubic-bezier(0.4, 0, 0.2, 1) infinite;
 }
 
 @keyframes scan {
@@ -179,11 +201,11 @@ video {
     opacity: 0;
   }
 
-  10% {
+  15% {
     opacity: 1;
   }
 
-  90% {
+  85% {
     opacity: 1;
   }
 
@@ -195,40 +217,46 @@ video {
 
 .camera-instruction {
   position: absolute;
-  bottom: 2rem;
+  bottom: 20%;
+  /* Moved up slightly */
   left: 0;
   right: 0;
   text-align: center;
   color: white;
-  font-weight: 500;
-  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.8);
+  font-weight: 600;
+  font-size: 1.1rem;
+  text-shadow: 0 2px 8px rgba(0, 0, 0, 0.9);
   pointer-events: none;
+  z-index: 10;
 }
 
-/* Capture Button */
+/* Camera Controls */
 .camera-controls {
   position: absolute;
-  bottom: 1.5rem;
+  bottom: 2rem;
   left: 0;
   right: 0;
   display: flex;
   justify-content: center;
+  align-items: center;
+  gap: 2rem;
   z-index: 20;
 }
 
 .capture-btn {
-  width: 72px;
-  height: 72px;
+  width: 80px;
+  height: 80px;
   border-radius: 50%;
   background: rgba(255, 255, 255, 0.2);
-  border: 4px solid rgba(255, 255, 255, 0.8);
+  border: 4px solid rgba(255, 255, 255, 0.9);
   padding: 4px;
   cursor: pointer;
-  transition: transform 0.2s;
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  box-shadow: 0 0 20px rgba(0, 0, 0, 0.3);
 }
 
 .capture-btn:active {
-  transform: scale(0.95);
+  transform: scale(0.9);
 }
 
 .capture-inner {
@@ -241,6 +269,28 @@ video {
 
 .capture-btn:hover .capture-inner {
   background: var(--primary-color);
+}
+
+.torch-btn {
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  border: none;
+  background: rgba(255, 255, 255, 0.2);
+  backdrop-filter: blur(4px);
+  color: white;
+  font-size: 1.5rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.torch-btn.active {
+  background: #fbbf24;
+  color: #000;
+  box-shadow: 0 0 15px #fbbf24;
 }
 
 /* Upload & Placeholder */
@@ -418,18 +468,55 @@ textarea:focus {
   }
 }
 
-/* Responsive */
+/* Responsive Mobile Styles */
 @media (max-width: 640px) {
-  .form-row {
-    flex-direction: column;
-    gap: 0;
-  }
-
   .container {
-    padding: 1rem;
+    padding: 0;
+    height: 100vh;
+    display: flex;
+    flex-direction: column;
   }
 
   .card {
+    border-radius: 0;
+    border: none;
     padding: 1rem;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+  }
+
+  .header {
+    padding: 0.75rem 1rem;
+  }
+
+  /* Full screen camera on mobile */
+  .camera-container {
+    flex: 1;
+    aspect-ratio: auto;
+    /* Reset aspect ratio */
+    height: auto;
+    border-radius: 16px;
+    margin-bottom: 1rem;
+  }
+
+  .focus-overlay {
+    width: 90%;
+    /* Maintain ID card ratio */
+    aspect-ratio: 1.58/1;
+  }
+
+  .camera-controls {
+    bottom: 2rem;
+  }
+
+  .capture-btn {
+    width: 72px;
+    height: 72px;
+  }
+
+  .form-row {
+    flex-direction: column;
+    gap: 0;
   }
 }
