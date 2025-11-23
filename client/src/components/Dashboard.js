@@ -89,7 +89,10 @@ const Dashboard = ({ user, onLogout }) => {
   const handleGoogleConnect = async () => {
     setLoading(true);
     try {
-      const response = await signInGoogle();
+      // For clubs, enforce the specific Gmail account
+      const expectedEmail = isClubUser ? (user.gmail || user.email) : null;
+
+      const response = await signInGoogle(expectedEmail);
       if (response && response.accessToken) {
         // Determine collection based on user type
         const collectionName = isClubUser ? 'clubs' : 'users';
@@ -125,7 +128,8 @@ const Dashboard = ({ user, onLogout }) => {
       }
     } catch (error) {
       console.error('Connection error:', error);
-      toast.error('Failed to connect Google account');
+      // Show specific validation error if present
+      toast.error(error.message || 'Failed to connect Google account');
     } finally {
       setLoading(false);
     }

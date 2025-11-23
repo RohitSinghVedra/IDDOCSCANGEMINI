@@ -38,7 +38,7 @@ export const initGoogleAPI = () => {
 };
 
 // Sign in using OAuth 2.0 (Google Identity Services compatible)
-export const signInGoogle = async () => {
+export const signInGoogle = async (expectedEmail = null) => {
   return new Promise(async (resolve, reject) => {
     const CLIENT_ID = process.env.REACT_APP_GOOGLE_CLIENT_ID || process.env.GOOGLE_CLIENT_ID;
 
@@ -69,6 +69,23 @@ export const signInGoogle = async () => {
 
         // Set token for gapi.client
         gapi.client.setToken({ access_token: accessToken });
+
+        // Validate Email if expectedEmail is provided
+        if (expectedEmail) {
+          try {
+            const userInfo = await getCurrentUser();
+            if (userInfo && userInfo.email && userInfo.email.toLowerCase() !== expectedEmail.toLowerCase()) {
+              // Email mismatch - Revoke and Reject
+              await signOutGoogle();
+              reject(new Error(`Invalid account. Please sign in with ${expectedEmail}`));
+              return;
+            }
+          } catch (validationError) {
+            console.error('Email validation failed:', validationError);
+            reject(new Error('Failed to validate email address'));
+            return;
+          }
+        }
 
         resolve({
           accessToken,
