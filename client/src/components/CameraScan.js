@@ -287,20 +287,30 @@ const CameraScan = ({ user }) => {
       if (progressInterval) clearInterval(progressInterval);
       setOcrProgress(100);
 
-
       setDocumentType(ocrResult.documentType);
+
+      // Helper to convert DD/MM/YYYY to YYYY-MM-DD for input[type="date"]
+      const convertDateToInputFormat = (dateStr) => {
+        if (!dateStr) return '';
+        // Check if already in YYYY-MM-DD (unlikely from OCR but possible)
+        if (dateStr.match(/^\d{4}-\d{2}-\d{2}$/)) return dateStr;
+
+        // Expecting DD/MM/YYYY or DD-MM-YYYY
+        const parts = dateStr.split(/[\/\-]/);
+        if (parts.length === 3) {
+          // specific check for DD/MM/YYYY
+          return `${parts[2]}-${parts[1]}-${parts[0]}`;
+        }
+        return '';
+      };
 
       // Populate manual data with extracted data
       setManualData({
         name: ocrResult.extractedData.name || '',
         idNumber: ocrResult.extractedData.aadhaarNumber || ocrResult.extractedData.panNumber || ocrResult.extractedData.passportNumber || ocrResult.extractedData.idNumber || '',
-        dob: ocrResult.extractedData.dateOfBirth || '',
+        dob: convertDateToInputFormat(ocrResult.extractedData.dateOfBirth),
         gender: ocrResult.extractedData.gender || '',
-        address: ocrResult.extractedData.address || '',
-        fatherName: ocrResult.extractedData.fatherName || '',
-        pincode: ocrResult.extractedData.pincode || '',
-        otherInfo1: ocrResult.extractedData.otherInfo1 || '',
-        otherInfo2: ocrResult.extractedData.otherInfo2 || ''
+        nationality: 'Indian' // Default
       });
 
       toast.success('Document processed successfully!');
@@ -334,7 +344,7 @@ const CameraScan = ({ user }) => {
 
     setDocumentType('other');
     setManualData({
-      name: '', idNumber: '', dob: '', gender: '', address: '', fatherName: '', pincode: '', otherInfo1: '', otherInfo2: ''
+      name: '', idNumber: '', dob: '', gender: '', nationality: ''
     });
     setShowPreview(false);
     if (method === 'camera') {
@@ -545,10 +555,9 @@ const CameraScan = ({ user }) => {
                   <div className="form-group">
                     <label>Date of Birth</label>
                     <input
-                      type="text"
+                      type="date"
                       value={manualData.dob}
                       onChange={(e) => setManualData({ ...manualData, dob: e.target.value })}
-                      placeholder="DD/MM/YYYY"
                     />
                   </div>
                   <div className="form-group">
@@ -566,12 +575,12 @@ const CameraScan = ({ user }) => {
                 </div>
 
                 <div className="form-group">
-                  <label>Address</label>
-                  <textarea
-                    value={manualData.address}
-                    onChange={(e) => setManualData({ ...manualData, address: e.target.value })}
-                    placeholder="Address"
-                    rows="3"
+                  <label>Nationality</label>
+                  <input
+                    type="text"
+                    value={manualData.nationality}
+                    onChange={(e) => setManualData({ ...manualData, nationality: e.target.value })}
+                    placeholder="Nationality (Default: Indian)"
                   />
                 </div>
 
