@@ -232,7 +232,7 @@ export const appendToSpreadsheet = async (spreadsheetId, data) => {
       data.documentType || '',
       extractedData.name || '',
       extractedData.idNumber || extractedData.aadhaarNumber || extractedData.passportNumber || extractedData.panNumber || '',
-      extractedData.dateOfBirth || '',
+      extractedData.dob || extractedData.dateOfBirth || '',
       extractedData.gender || '',
       extractedData.nationality || ''
     ]];
