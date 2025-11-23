@@ -234,7 +234,7 @@ const CameraScan = ({ user }) => {
         video: {
           facingMode: 'environment',
           width: { ideal: 1920 },
-          height: { ideal: 1080 },
+          height: { ideal: 1440 }, // 4:3 Aspect Ratio
           advanced: [
             { focusMode: "continuous" },
             { exposureMode: "continuous" },

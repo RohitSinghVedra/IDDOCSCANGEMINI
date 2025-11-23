@@ -20,13 +20,15 @@
   box-shadow: var(--glass-shadow);
   position: relative;
   overflow: hidden;
+  display: flex;
+  flex-direction: column;
 }
 
 /* Header */
 .header {
   display: flex;
-  justify-content: space-between;
   align-items: center;
+  gap: 16px;
   margin-bottom: 24px;
   position: relative;
   z-index: 10;
@@ -36,14 +38,15 @@
   background: rgba(255, 255, 255, 0.05);
   border: 1px solid var(--glass-border);
   color: var(--text-primary);
-  padding: 10px 20px;
-  border-radius: 9999px;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
   cursor: pointer;
-  font-weight: 600;
-  transition: all 0.2s;
   display: flex;
   align-items: center;
-  gap: 8px;
+  justify-content: center;
+  transition: all 0.2s;
+  padding: 0;
 }
 
 .back-btn:hover {
@@ -53,16 +56,16 @@
 
 .header h2 {
   margin: 0;
-  font-size: 1.5rem;
+  font-size: 1.25rem;
   color: var(--text-primary);
   font-weight: 700;
 }
 
-/* Method Selector - Unified Pill Style */
+/* Method Selector - Sleek Pill Style */
 .method-selector {
   display: flex;
-  background: rgba(255, 255, 255, 0.03);
-  padding: 6px;
+  background: rgba(0, 0, 0, 0.4);
+  padding: 4px;
   border-radius: 9999px;
   margin-bottom: 24px;
   border: 1px solid var(--glass-border);
@@ -71,7 +74,7 @@
 
 .method-btn {
   flex: 1;
-  padding: 12px;
+  padding: 10px;
   border: none;
   background: transparent;
   color: var(--text-secondary);
@@ -79,7 +82,8 @@
   cursor: pointer;
   border-radius: 9999px;
   transition: all 0.3s ease;
-  font-size: 0.95rem;
+  font-size: 0.85rem;
+  letter-spacing: 0.5px;
 }
 
 .method-btn:hover {
@@ -90,7 +94,7 @@
 .method-btn.active {
   background: var(--accent-teal);
   color: #000;
-  box-shadow: 0 4px 12px rgba(45, 212, 191, 0.3);
+  box-shadow: 0 2px 8px rgba(45, 212, 191, 0.2);
 }
 
 /* Camera Container */
@@ -103,6 +107,9 @@
   overflow: hidden;
   box-shadow: 0 20px 40px -10px rgba(0, 0, 0, 0.5);
   border: 1px solid var(--glass-border);
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
 .camera-feed {
@@ -139,8 +146,8 @@
 .focus-overlay::after {
   content: '';
   position: absolute;
-  width: 40px;
-  height: 40px;
+  width: 32px;
+  height: 32px;
   border-color: var(--accent-teal);
   border-style: solid;
   border-width: 4px;
@@ -161,29 +168,6 @@
   border-left: none;
   border-top: none;
   border-radius: 0 0 12px 0;
-}
-
-/* Add other corners with pseudo elements on a child or use multiple backgrounds */
-.corner-top-right {
-  position: absolute;
-  top: -2px;
-  right: -2px;
-  width: 40px;
-  height: 40px;
-  border-top: 4px solid var(--accent-teal);
-  border-right: 4px solid var(--accent-teal);
-  border-radius: 0 12px 0 0;
-}
-
-.corner-bottom-left {
-  position: absolute;
-  bottom: -2px;
-  left: -2px;
-  width: 40px;
-  height: 40px;
-  border-bottom: 4px solid var(--accent-teal);
-  border-left: 4px solid var(--accent-teal);
-  border-radius: 0 0 0 12px;
 }
 
 .scan-instruction {
@@ -506,10 +490,11 @@ input::placeholder {
     background: rgba(0, 0, 0, 0.8);
     backdrop-filter: blur(10px);
     margin-bottom: 0;
+    justify-content: flex-start;
   }
 
   .method-selector {
-    margin: 1rem;
+    margin: 0 1rem 1rem 1rem;
   }
 
   .preview-container {
