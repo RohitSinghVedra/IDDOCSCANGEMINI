@@ -13,7 +13,7 @@ const CameraScan = ({ user }) => {
   const [ocrProgress, setOcrProgress] = useState(0);
   const [stream, setStream] = useState(null);
   const [capturedImage, setCapturedImage] = useState(null);
-  const [extractedData, setExtractedData] = useState(null);
+
   const [documentType, setDocumentType] = useState('other');
   const [showPreview, setShowPreview] = useState(false);
   const [isProcessing, setIsProcessing] = useState(false);
@@ -145,7 +145,7 @@ const CameraScan = ({ user }) => {
       if (progressInterval) clearInterval(progressInterval);
       setOcrProgress(100);
 
-      setExtractedData(ocrResult);
+
       setDocumentType(ocrResult.documentType);
 
       // Populate manual data with extracted data
@@ -167,7 +167,7 @@ const CameraScan = ({ user }) => {
       console.error('OCR error:', error);
       toast.error(`Failed to process document: ${error.message}`);
       setCapturedImage(null);
-      setExtractedData(null);
+
       setShowPreview(false);
     } finally {
       if (progressInterval) clearInterval(progressInterval);
@@ -189,7 +189,7 @@ const CameraScan = ({ user }) => {
 
   const retakePhoto = () => {
     setCapturedImage(null);
-    setExtractedData(null);
+
     setDocumentType('other');
     setManualData({
       name: '', idNumber: '', dob: '', gender: '', address: '', fatherName: '', pincode: '', otherInfo1: '', otherInfo2: ''
