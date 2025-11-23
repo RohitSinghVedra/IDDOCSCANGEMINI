@@ -223,19 +223,52 @@ const CameraScan = ({ user }) => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
+  const [torchSupported, setTorchSupported] = useState(false);
+  const [torchOn, setTorchOn] = useState(false);
+
+  // ... (existing useEffects)
+
   const startCamera = async () => {
     try {
-      const mediaStream = await navigator.mediaDevices.getUserMedia({
+      const constraints = {
         video: {
           facingMode: 'environment',
           width: { ideal: 1920 },
-          height: { ideal: 1080 }
+          height: { ideal: 1080 },
+          advanced: [
+            { focusMode: "continuous" },
+            { exposureMode: "continuous" },
+            { whiteBalanceMode: "continuous" }
+          ]
         }
-      });
+      };
+
+      const mediaStream = await navigator.mediaDevices.getUserMedia(constraints);
       setStream(mediaStream);
+
+      // Check for torch support
+      const track = mediaStream.getVideoTracks()[0];
+      const capabilities = track.getCapabilities();
+      if (capabilities.torch) {
+        setTorchSupported(true);
+      }
+
     } catch (error) {
       toast.error('Camera access denied or not available');
       console.error('Camera error:', error);
+    }
+  };
+
+  const toggleTorch = async () => {
+    if (!stream) return;
+    const track = stream.getVideoTracks()[0];
+    try {
+      await track.applyConstraints({
+        advanced: [{ torch: !torchOn }]
+      });
+      setTorchOn(!torchOn);
+    } catch (error) {
+      console.error('Torch error:', error);
     }
   };
 
@@ -253,17 +286,47 @@ const CameraScan = ({ user }) => {
       canvas.height = video.videoHeight;
 
       const ctx = canvas.getContext('2d');
-      ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+      ctx.drawImage(video, 0, 0);
 
-      canvas.toBlob(async (blob) => {
-        const file = new File([blob], 'document-photo.jpg', { type: 'image/jpeg' });
-        const imageUrl = URL.createObjectURL(blob);
+      // --- Image Preprocessing for OCR ---
+      const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+      const data = imageData.data;
 
-        setCapturedImage({ file, url: imageUrl });
-        stopCamera();
-        toast.success('Photo captured! Processing...');
-        await processCapturedImage(file);
-      }, 'image/jpeg', 0.9);
+      // Contrast factor (adjust as needed, 128 is a good starting point)
+      const contrast = 50;
+      const factor = (259 * (contrast + 255)) / (255 * (259 - contrast));
+
+      for (let i = 0; i < data.length; i += 4) {
+        // Grayscale
+        const grayscale = data[i] * 0.299 + data[i + 1] * 0.587 + data[i + 2] * 0.114;
+
+        // Apply Contrast
+        let newValue = factor * (grayscale - 128) + 128;
+
+        // Clamp value between 0 and 255
+        newValue = Math.max(0, Math.min(255, newValue));
+
+        data[i] = newValue;     // Red
+        data[i + 1] = newValue; // Green
+        data[i + 2] = newValue; // Blue
+      }
+
+      ctx.putImageData(imageData, 0, 0);
+      // -----------------------------------
+
+      const imageUrl = canvas.toDataURL('image/jpeg', 0.9);
+
+      // Convert base64 to blob for processing
+      const res = await fetch(imageUrl);
+      const blob = await res.blob();
+      const file = new File([blob], "capture.jpg", { type: "image/jpeg" });
+
+      setCapturedImage({ file, url: imageUrl });
+      stopCamera();
+
+      toast.info('Processing captured image...');
+      await processCapturedImage(file);
+
     } catch (error) {
       console.error('Capture error:', error);
       toast.error('Failed to capture photo');
