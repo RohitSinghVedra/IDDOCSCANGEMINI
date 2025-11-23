@@ -284,8 +284,13 @@ const CameraScan = ({ user }) => {
 
     } catch (error) {
       console.error('Save error:', error);
-      if (error.result && error.result.error && error.result.error.code === 403) {
-        toast.error('Permission denied. Please reconnect Google Sheets in Dashboard.');
+      const errorCode = error.result?.error?.code || error.status;
+
+      if (errorCode === 403 || errorCode === 401) {
+        toast.error('Session expired. Please reconnect Google Sheets in Dashboard.', {
+          autoClose: 4000
+        });
+        setTimeout(() => navigate('/dashboard'), 3000);
       } else {
         toast.error(error.message || 'Failed to save document');
       }
