@@ -298,7 +298,7 @@ const CameraScan = ({ user }) => {
     setMethod('manual');
     stopCamera();
     setCapturedImage(null);
-    setExtractedData(null);
+
     setShowPreview(true); // Show preview immediately for manual entry
   };
 
