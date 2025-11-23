@@ -58,14 +58,15 @@
   font-weight: 700;
 }
 
-/* Method Selector */
+/* Method Selector - Unified Pill Style */
 .method-selector {
   display: flex;
-  background: rgba(0, 0, 0, 0.3);
-  padding: 4px;
+  background: rgba(255, 255, 255, 0.03);
+  padding: 6px;
   border-radius: 9999px;
   margin-bottom: 24px;
   border: 1px solid var(--glass-border);
+  gap: 4px;
 }
 
 .method-btn {
@@ -78,6 +79,12 @@
   cursor: pointer;
   border-radius: 9999px;
   transition: all 0.3s ease;
+  font-size: 0.95rem;
+}
+
+.method-btn:hover {
+  color: var(--text-primary);
+  background: rgba(255, 255, 255, 0.05);
 }
 
 .method-btn.active {
@@ -102,6 +109,7 @@
   width: 100%;
   height: 100%;
   object-fit: cover;
+  /* Default for desktop */
 }
 
 /* Overlays */
@@ -375,28 +383,34 @@ label {
   color: var(--text-secondary);
   font-size: 0.9rem;
   font-weight: 500;
+  margin-left: 4px;
 }
 
+/* Unified Glass Input Style */
 input,
 select,
 textarea {
   width: 100%;
-  padding: 1rem;
+  padding: 16px;
   background: rgba(255, 255, 255, 0.05);
-  border: 1px solid var(--glass-border);
+  border: 1px solid rgba(255, 255, 255, 0.05);
   border-radius: 16px;
   color: var(--text-primary);
   font-size: 1rem;
-  transition: all 0.2s;
+  transition: all 0.3s ease;
+  outline: none;
 }
 
 input:focus,
 select:focus,
 textarea:focus {
-  outline: none;
-  border-color: var(--accent-teal);
-  box-shadow: 0 0 0 3px rgba(45, 212, 191, 0.1);
   background: rgba(255, 255, 255, 0.08);
+  border-color: var(--accent-teal);
+  box-shadow: 0 0 0 4px rgba(45, 212, 191, 0.1);
+}
+
+input::placeholder {
+  color: rgba(255, 255, 255, 0.2);
 }
 
 /* Buttons */
@@ -408,21 +422,24 @@ textarea:focus {
 
 .preview-controls .btn {
   flex: 1;
-  padding: 1rem;
+  padding: 16px;
   border-radius: 9999px;
   font-weight: 600;
   cursor: pointer;
   border: none;
   transition: all 0.2s;
+  font-size: 1rem;
 }
 
 .btn-secondary {
-  background: rgba(255, 255, 255, 0.1);
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid var(--glass-border);
   color: var(--text-primary);
 }
 
 .btn-secondary:hover {
-  background: rgba(255, 255, 255, 0.15);
+  background: rgba(255, 255, 255, 0.1);
+  border-color: rgba(255, 255, 255, 0.2);
 }
 
 .btn-primary {
@@ -433,7 +450,7 @@ textarea:focus {
 .btn-primary:hover {
   background: var(--accent-green);
   transform: translateY(-2px);
-  box-shadow: 0 4px 12px rgba(45, 212, 191, 0.3);
+  box-shadow: 0 10px 20px -5px rgba(45, 212, 191, 0.4);
 }
 
 /* Modal */
@@ -513,6 +530,17 @@ textarea:focus {
     margin: 0;
     box-shadow: none;
     border: none;
+    background: #000;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  /* Fix for Mobile Zoom: Use contain to show full field of view */
+  .camera-feed {
+    object-fit: contain;
+    width: 100%;
+    height: 100%;
   }
 
   .focus-overlay {
