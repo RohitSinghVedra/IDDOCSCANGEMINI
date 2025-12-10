@@ -1,4 +1,4 @@
-/* CameraScan.css - Deep Dark Glass Theme */
+/* CameraScan.css - Deep Dark Glass Theme & Fullscreen Mobile */
 
 .container {
   max-width: 800px;
@@ -22,6 +22,8 @@
   overflow: hidden;
   display: flex;
   flex-direction: column;
+  min-height: 600px;
+  /* Ensure height for controls */
 }
 
 /* Header */
@@ -32,6 +34,10 @@
   margin-bottom: 24px;
   position: relative;
   z-index: 10;
+}
+
+.hidden-mobile {
+  /* Should stick on desktop, hidden on mobile logic handled in media query */
 }
 
 .back-btn {
@@ -47,6 +53,7 @@
   justify-content: center;
   transition: all 0.2s;
   padding: 0;
+  font-size: 1.2rem;
 }
 
 .back-btn:hover {
@@ -61,7 +68,7 @@
   font-weight: 700;
 }
 
-/* Method Selector - Sleek Pill Style */
+/* Method Selector */
 .method-selector {
   display: flex;
   background: rgba(0, 0, 0, 0.4);
@@ -83,7 +90,6 @@
   border-radius: 9999px;
   transition: all 0.3s ease;
   font-size: 0.85rem;
-  letter-spacing: 0.5px;
 }
 
 .method-btn:hover {
@@ -101,44 +107,57 @@
 .camera-container {
   position: relative;
   width: 100%;
-  aspect-ratio: 4/3;
+  flex: 1;
   background: #000;
   border-radius: 24px;
   overflow: hidden;
   box-shadow: 0 20px 40px -10px rgba(0, 0, 0, 0.5);
   border: 1px solid var(--glass-border);
   display: flex;
+  flex-direction: column;
   align-items: center;
   justify-content: center;
+  min-height: 400px;
 }
 
 .camera-feed {
   width: 100%;
   height: 100%;
   object-fit: cover;
-  /* Default for desktop */
+  /* Desktop Default */
 }
+
+/* Camera Placeholder */
+.camera-placeholder {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  color: var(--text-secondary);
+  cursor: pointer;
+}
+
+/* Fullscreen Mobile Styles Logic */
+/* .camera-container.fullscreen logic triggers only on mobile/small screens via JS toggle */
 
 /* Overlays */
 .camera-overlay {
   position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
+  inset: 0;
+  /* top/left/right/bottom 0 */
   pointer-events: none;
   display: flex;
   align-items: center;
   justify-content: center;
+  z-index: 10;
 }
 
 .focus-overlay {
   width: 85%;
   aspect-ratio: 1.58/1;
-  /* ID Card Ratio */
-  border: 2px solid rgba(255, 255, 255, 0.3);
+  border: 1px solid rgba(255, 255, 255, 0.2);
   border-radius: 16px;
-  box-shadow: 0 0 0 9999px rgba(0, 0, 0, 0.7);
+  box-shadow: 0 0 0 9999px rgba(0, 0, 0, 0.6);
+  /* Dim background */
   position: relative;
 }
 
@@ -155,59 +174,142 @@
 }
 
 .focus-overlay::before {
-  top: -2px;
-  left: -2px;
+  top: -1px;
+  left: -1px;
   border-right: none;
   border-bottom: none;
-  border-radius: 12px 0 0 0;
+  border-radius: 16px 0 0 0;
 }
 
 .focus-overlay::after {
-  bottom: -2px;
-  right: -2px;
+  bottom: -1px;
+  right: -1px;
   border-left: none;
   border-top: none;
-  border-radius: 0 0 12px 0;
+  border-radius: 0 0 16px 0;
 }
 
 .scan-instruction {
   position: absolute;
-  bottom: -40px;
-  left: 0;
+  top: -40px;
+  /* Above the framer */
   width: 100%;
   text-align: center;
   color: rgba(255, 255, 255, 0.9);
   font-size: 0.9rem;
-  font-weight: 500;
-  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.5);
+  font-weight: 600;
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.8);
 }
 
-/* Controls */
-.camera-controls {
+/* Fullscreen Controls */
+.fullscreen-controls {
   position: absolute;
-  bottom: 2rem;
-  left: 0;
-  width: 100%;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  gap: 3rem;
+  inset: 0;
+  pointer-events: none;
   z-index: 20;
-  pointer-events: auto;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  padding: 20px;
 }
 
+.control-top-bar {
+  display: flex;
+  justify-content: space-between;
+  pointer-events: auto;
+  padding-top: 10px;
+  /* Safe area */
+}
+
+.control-btn {
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  background: rgba(0, 0, 0, 0.4);
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  color: #fff;
+  font-size: 1.2rem;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s;
+}
+
+.control-btn:active {
+  transform: scale(0.95);
+}
+
+.control-btn.active {
+  background: var(--accent-teal);
+  color: #000;
+}
+
+.control-bottom-bar {
+  pointer-events: auto;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 20px;
+  padding-bottom: 30px;
+  background: linear-gradient(to top, rgba(0, 0, 0, 0.8), transparent);
+  margin: -20px;
+  /* Counteract padding */
+  padding: 40px 20px 40px 20px;
+}
+
+/* Zoom Slider */
+.zoom-control-container {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  width: 80%;
+  max-width: 300px;
+  background: rgba(0, 0, 0, 0.4);
+  padding: 8px 16px;
+  border-radius: 9999px;
+  backdrop-filter: blur(8px);
+}
+
+.zoom-label {
+  color: #fff;
+  font-size: 0.8rem;
+  font-weight: 600;
+  min-width: 30px;
+  text-align: center;
+}
+
+.zoom-slider {
+  flex: 1;
+  -webkit-appearance: none;
+  background: rgba(255, 255, 255, 0.2);
+  height: 4px;
+  border-radius: 2px;
+}
+
+.zoom-slider::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  width: 20px;
+  height: 20px;
+  background: var(--accent-teal);
+  border-radius: 50%;
+  cursor: pointer;
+  box-shadow: 0 0 10px rgba(45, 212, 191, 0.5);
+}
+
+/* Capture Button */
 .capture-btn {
   width: 80px;
   height: 80px;
   border-radius: 50%;
   background: rgba(255, 255, 255, 0.2);
-  border: 4px solid rgba(255, 255, 255, 0.4);
+  border: 4px solid rgba(255, 255, 255, 0.8);
   display: flex;
   align-items: center;
   justify-content: center;
   cursor: pointer;
   transition: all 0.2s;
-  backdrop-filter: blur(4px);
 }
 
 .capture-inner {
@@ -223,39 +325,8 @@
   background: var(--accent-teal);
 }
 
-.capture-btn:hover {
-  border-color: var(--accent-teal);
-}
-
-.capture-btn:hover .capture-inner {
-  background: var(--accent-teal);
-}
-
-.torch-btn {
-  width: 48px;
-  height: 48px;
-  border-radius: 50%;
-  border: none;
-  background: rgba(255, 255, 255, 0.1);
-  backdrop-filter: blur(10px);
-  color: white;
-  font-size: 1.5rem;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  cursor: pointer;
-  transition: all 0.3s ease;
-}
-
-.torch-btn.active {
-  background: var(--accent-teal);
-  color: #000;
-  box-shadow: 0 0 20px rgba(45, 212, 191, 0.4);
-}
-
-/* Upload & Placeholder */
-.upload-container,
-.camera-placeholder {
+/* Upload & Manual Styles */
+.upload-container {
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -268,287 +339,63 @@
   transition: all 0.3s ease;
 }
 
-.upload-container:hover {
-  border-color: var(--accent-teal);
-  background: rgba(45, 212, 191, 0.05);
-}
-
-.upload-placeholder p,
-.camera-placeholder p {
-  margin-top: 1rem;
-  color: var(--text-secondary);
-  font-size: 1.1rem;
-}
-
-/* Processing */
-.processing-indicator {
-  margin-top: 2rem;
-  text-align: center;
-}
-
-.processing-text {
-  margin-bottom: 0.5rem;
-  color: var(--accent-teal);
-  font-weight: 600;
-  animation: pulse 1.5s infinite;
-}
-
-.progress-bar {
-  height: 6px;
-  background: rgba(255, 255, 255, 0.1);
-  border-radius: 3px;
-  overflow: hidden;
-}
-
-.progress-fill {
-  height: 100%;
-  background: linear-gradient(90deg, var(--accent-teal), var(--accent-green));
-  transition: width 0.3s ease;
-}
-
-@keyframes pulse {
-
-  0%,
-  100% {
-    opacity: 1;
-  }
-
-  50% {
-    opacity: 0.6;
-  }
-}
-
-/* Edit Form */
+/* Form Styles */
 .preview-container {
   animation: slideUp 0.4s ease-out;
-}
-
-@keyframes slideUp {
-  from {
-    opacity: 0;
-    transform: translateY(20px);
-  }
-
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
-
-.image-preview {
-  margin-bottom: 2rem;
-  border-radius: 24px;
-  overflow: hidden;
-  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
-  border: 1px solid var(--glass-border);
-}
-
-.image-preview img {
-  width: 100%;
-  display: block;
 }
 
 .form-group {
   margin-bottom: 1.5rem;
 }
 
-.form-row {
-  display: flex;
-  gap: 1rem;
-}
-
-.form-row .form-group {
-  flex: 1;
-}
-
-label {
-  display: block;
-  margin-bottom: 0.5rem;
-  color: var(--text-secondary);
-  font-size: 0.9rem;
-  font-weight: 500;
-  margin-left: 4px;
-}
-
-/* Unified Glass Input Style */
 input,
-select,
-textarea {
+select {
   width: 100%;
   padding: 16px;
   background: rgba(255, 255, 255, 0.05);
-  border: 1px solid rgba(255, 255, 255, 0.05);
+  border: 1px solid var(--glass-border);
   border-radius: 16px;
   color: var(--text-primary);
   font-size: 1rem;
-  transition: all 0.3s ease;
-  outline: none;
-}
-
-input:focus,
-select:focus,
-textarea:focus {
-  background: rgba(255, 255, 255, 0.08);
-  border-color: var(--accent-teal);
-  box-shadow: 0 0 0 4px rgba(45, 212, 191, 0.1);
-}
-
-input::placeholder {
-  color: rgba(255, 255, 255, 0.2);
-}
-
-/* Buttons */
-.preview-controls {
-  display: flex;
-  gap: 1rem;
-  margin-top: 2rem;
-}
-
-.preview-controls .btn {
-  flex: 1;
-  padding: 16px;
-  border-radius: 9999px;
-  font-weight: 600;
-  cursor: pointer;
-  border: none;
-  transition: all 0.2s;
-  font-size: 1rem;
-}
-
-.btn-secondary {
-  background: rgba(255, 255, 255, 0.05);
-  border: 1px solid var(--glass-border);
-  color: var(--text-primary);
-}
-
-.btn-secondary:hover {
-  background: rgba(255, 255, 255, 0.1);
-  border-color: rgba(255, 255, 255, 0.2);
-}
-
-.btn-primary {
-  background: var(--accent-teal);
-  color: #000;
-}
-
-.btn-primary:hover {
-  background: var(--accent-green);
-  transform: translateY(-2px);
-  box-shadow: 0 10px 20px -5px rgba(45, 212, 191, 0.4);
-}
-
-/* Modal */
-.modal-overlay {
-  backdrop-filter: blur(12px);
-  background: rgba(0, 0, 0, 0.6);
-}
-
-.modal-content {
-  background: #1e293b;
-  border: 1px solid var(--glass-border);
-  border-radius: 24px;
-  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.8);
-  animation: popIn 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-}
-
-@keyframes popIn {
-  from {
-    opacity: 0;
-    transform: scale(0.9);
-  }
-
-  to {
-    opacity: 1;
-    transform: scale(1);
-  }
 }
 
 /* Responsive Mobile Styles */
 @media (max-width: 640px) {
-  .container {
+  .container.camera-active-mode {
     padding: 0;
+    justify-content: flex-start;
+  }
+
+  .hidden-mobile {
+    display: none !important;
+  }
+
+  /* Fullscreen Camera Breakout */
+  .camera-container.fullscreen {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
     height: 100vh;
-    display: flex;
-    flex-direction: column;
+    z-index: 9999;
+    border-radius: 0;
+    border: none;
+    margin: 0;
+  }
+
+  /* When fullscreen, video covers everything appropriately */
+  .camera-container.fullscreen .camera-feed {
+    object-fit: cover !important;
+  }
+
+  /* Normal layout adjustments when not fullscreen */
+  .container:not(.camera-active-mode) {
+    padding: 0;
   }
 
   .card {
     border-radius: 0;
     border: none;
-    padding: 0;
-    height: 100%;
-    display: flex;
-    flex-direction: column;
-    background: transparent;
-    box-shadow: none;
-    overflow-y: auto;
-    -webkit-overflow-scrolling: touch;
-  }
-
-  .header {
-    padding: 1rem;
-    background: rgba(0, 0, 0, 0.8);
-    backdrop-filter: blur(10px);
-    margin-bottom: 0;
-    justify-content: flex-start;
-  }
-
-  .method-selector {
-    margin: 0 1rem 1rem 1rem;
-  }
-
-  .preview-container {
-    padding: 1rem;
-    background: #1e293b;
-    border-radius: 32px 32px 0 0;
-    margin-top: auto;
-    min-height: 100%;
-    border-top: 1px solid var(--glass-border);
-  }
-
-  .camera-container {
-    flex: 1;
-    width: 100%;
-    aspect-ratio: auto;
-    height: auto;
-    border-radius: 0;
-    margin: 0;
-    box-shadow: none;
-    border: none;
-    background: #000;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-  }
-
-  /* Fix for Mobile Zoom: Use contain to show full field of view */
-  .camera-feed {
-    object-fit: contain;
-    width: 100%;
-    height: 100%;
-  }
-
-  .focus-overlay {
-    width: 85%;
-    aspect-ratio: 1.58/1;
-  }
-
-  .camera-controls {
-    bottom: 3rem;
-  }
-
-  .capture-btn {
-    width: 80px;
-    height: 80px;
-  }
-
-  .form-row {
-    flex-direction: column;
-    gap: 0;
-  }
-
-  .image-preview {
-    border-radius: 16px;
-    margin-bottom: 1.5rem;
+    min-height: 100vh;
   }
 }
