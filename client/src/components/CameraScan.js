@@ -254,14 +254,6 @@ const CameraScan = ({ user }) => {
     }
   };
 
-  const handleManualEntry = async (e) => {
-    e.preventDefault();
-    if (manualData.dob) {
-      // Logic for DOB conversion
-    }
-    // No-op for now, save button triggers handleSave
-  };
-
   const handleSave = async () => {
     if (user?.userType !== 'club' && !isSignedIn()) {
       toast.error('Please connect Google account first');
@@ -279,7 +271,6 @@ const CameraScan = ({ user }) => {
     try {
       let spreadsheetId;
       let spreadsheetUrl;
-      let accessToken;
 
       if (user?.userType === 'club') {
         const clubDocRef = doc(db, 'clubs', user.id);
